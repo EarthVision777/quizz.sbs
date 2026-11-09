@@ -5,9 +5,9 @@ import { ArrowLeft, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Scene } from "@/components/scene"
-import { buildReading, dateError, displayName, nameError } from "@/lib/reading"
+import { Offer } from "@/components/offer"
+import { dateError, displayName, nameError } from "@/lib/reading"
 import {
-  clearSave,
   getEmptySave,
   readSave,
   subscribeSave,
@@ -123,7 +123,6 @@ function Step({
   onJump: (index: number, answers?: Answers) => void
 }) {
   const you = displayName(answers.you, "")
-  const them = displayName(answers.love, "él")
 
   switch (index) {
     case 0:
@@ -251,12 +250,19 @@ function Step({
         />
       )
     case 11:
-      return <Bridge you={you || "Tú"} them={them} onNext={() => onJump(12)} />
+      return <Guide onNext={() => onJump(12)} />
     case 12:
       return (
         <EmojiStep
           title="Qué es lo que más te rompe el corazón en esta lucha por tenerlo de vuelta?"
-          note={`${you || "Tú"}, estas preguntas afinan la lectura. No hay un plazo mágico: hay un patrón.`}
+          note={
+            <>
+              {you || "Tú"}, responde algunas preguntas más para preparar tu ritual exclusivo.{" "}
+              <span className="font-semibold text-foreground">
+                Si no actúas ahora, él puede seguir adelante para siempre...
+              </span>
+            </>
+          }
           options={[
             ["Él me ignora como si nunca me hubiera amado", "😢"],
             ["Él está con otra persona y eso me destruye por dentro", "💔"],
@@ -363,9 +369,9 @@ function Step({
         />
       )
     case 20:
-      return <Finale you={you || "Tú"} them={them} onDone={() => onJump(21)} />
+      return <Finale you={you || "Tú"} onDone={() => onJump(21)} />
     default:
-      return <Result answers={answers} onRestart={() => clearSave()} />
+      return <Offer you={you || "Querida"} />
   }
 }
 
@@ -490,7 +496,7 @@ function EmojiStep({
   options: [string, string][]
   onPick: (value: string) => void
   scene?: string
-  note?: string
+  note?: React.ReactNode
 }) {
   return (
     <div className="flex flex-1 flex-col">
@@ -616,33 +622,29 @@ function TextStep({
   )
 }
 
-function Bridge({ you, them, onNext }: { you: string; them: string; onNext: () => void }) {
+function Guide({ onNext }: { onNext: () => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 pt-16 pb-16 text-center">
-      <p className="text-sm text-muted-foreground">Ordenando lo que contaste</p>
-      <h2 className="font-heading mt-3 text-3xl">
-        <span className="text-red-300">{you}</span>
-        <span className="text-muted-foreground"> y </span>
-        {them}
-      </h2>
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-        No es una energía. Es el patrón que aparece cuando se juntan el motivo, el silencio y lo que haces cuando nadie responde.
+    <div className="flex flex-1 flex-col items-center px-4 pt-16 pb-16 text-center">
+      <div className="grid aspect-square w-full max-w-[220px] place-items-center rounded-lg border border-dashed border-white/25 bg-muted/30 px-4 text-center text-xs leading-relaxed text-muted-foreground">
+        Foto pendiente
+      </div>
+      <p className="mt-5 text-lg font-bold text-foreground">Mi nombre es Rosa Moreno</p>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+        <span className="font-bold text-primary">Desde hace más de 9 años,</span> mi misión ha sido una sola: usar el
+        conocimiento que heredé de mi familia <strong className="text-foreground">para ayudar a mujeres</strong> como tú
+        que tienen el corazón roto.
       </p>
-      <ul className="mt-6 w-full space-y-3 text-left text-sm">
-        {["El motivo y el tiempo", "El contacto que todavía existe", "Lo que hiciste después"].map((line) => (
-          <li key={line} className="rounded-xl border border-border bg-card/70 px-4 py-3">
-            {line}
-          </li>
-        ))}
-      </ul>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+        He dedicado mi vida a demostrar que para todo sufrimiento de amor, siempre existe un camino de regreso.
+      </p>
       <div className="mt-8 w-full">
-        <GlowButton onClick={onNext}>Continuar</GlowButton>
+        <GlowButton onClick={onNext}>Continuar mi ritual</GlowButton>
       </div>
     </div>
   )
 }
 
-function Finale({ you, them, onDone }: { you: string; them: string; onDone: () => void }) {
+function Finale({ you, onDone }: { you: string; onDone: () => void }) {
   const onDoneRef = useRef(onDone)
   useEffect(() => {
     onDoneRef.current = onDone
@@ -659,63 +661,20 @@ function Finale({ you, them, onDone }: { you: string; them: string; onDone: () =
         <h2 className="font-heading text-xl font-bold tracking-tight uppercase">
           <span className="text-red-300">{you}</span>
           <br />
-          <span>Tu lectura está lista</span>
+          <span>No salgas de esta página</span>
         </h2>
         <div className="relative mt-6 grid size-28 place-items-center">
           <span className="absolute inset-0 animate-spin rounded-full border-8 border-primary/30 border-t-primary" />
           <span className="text-3xl">❤️</span>
         </div>
         <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-          Cerrando lo que {you} contó sobre {them}. Puedes seguir ahora: no hace falta esperar el círculo.
+          Estamos finalizando los últimos detalles de tu ritual personalizado… Puedes seguir ahora: no hace falta esperar el círculo.
         </p>
         <div className="mt-6 w-full">
-          <GlowButton onClick={onDone}>Ver mi lectura</GlowButton>
+          <GlowButton onClick={onDone}>Continuar</GlowButton>
         </div>
       </div>
     </div>
-  )
-}
-
-function Result({ answers, onRestart }: { answers: Answers; onRestart: () => void }) {
-  const reading = buildReading(answers)
-  return (
-    <article className="flex flex-1 flex-col px-4 pt-10 pb-10">
-      <p className="text-center text-xs tracking-[0.18em] text-primary uppercase">Lectura de {reading.you}</p>
-      <h1 className="font-heading mt-3 text-center text-3xl leading-tight">{reading.name}</h1>
-      <p className="mt-3 text-center text-sm leading-relaxed text-muted-foreground">{reading.line}</p>
-      <blockquote className="mt-6 border-l-2 border-primary pl-4 text-sm leading-relaxed">{reading.letter}</blockquote>
-      <div className="mt-6 space-y-3">
-        {reading.insights.map((insight) => (
-          <section key={insight.title} className="rounded-2xl border border-border bg-card/70 p-4">
-            <h2 className="font-heading text-lg">{insight.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{insight.body}</p>
-          </section>
-        ))}
-      </div>
-      <h2 className="font-heading mt-8 text-2xl">Esta semana</h2>
-      <ol className="mt-3 space-y-3">
-        {reading.week.map((item, itemIndex) => (
-          <li key={item} className="flex gap-3 text-sm leading-relaxed">
-            <span className="font-heading text-lg text-primary">{itemIndex + 1}</span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ol>
-      <section className="mt-6 rounded-2xl border border-destructive/30 bg-destructive/10 p-4">
-        <h2 className="font-heading text-lg">Lo que conviene frenar</h2>
-        <ul className="mt-2 space-y-2 text-sm leading-relaxed">
-          {reading.stop.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-      <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-        Esta lectura ordena lo que contaste. No predice lo que {reading.them} va a hacer, y no obliga a nadie a volver.
-      </p>
-      <div className="mt-6">
-        <GlowButton onClick={onRestart}>Empezar de nuevo</GlowButton>
-      </div>
-    </article>
   )
 }
 
