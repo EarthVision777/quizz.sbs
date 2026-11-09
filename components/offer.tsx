@@ -1,11 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import Hls from "hls.js"
+import { useState } from "react"
 import { Check } from "lucide-react"
 
-const VSL_SRC =
-  "https://cdn.converteai.net/31957ec3-9250-4adb-93eb-bb2b4086c66f/69bc5bdaacddada823a9149b/main.m3u8"
+const VSL_SRC = "https://res.cloudinary.com/dyvzcsbc/video/upload/v1794200638/VSL_LHAMA_ETERNA.mp4"
 
 const INCLUDED = [
   "Tu ritual 100% personalizado",
@@ -17,21 +15,6 @@ const INCLUDED = [
 
 export function Offer({ you }: { you: string }) {
   const [pending, setPending] = useState(false)
-  const video = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const player = video.current
-    if (!player) return
-    if (player.canPlayType("application/vnd.apple.mpegurl")) {
-      player.src = VSL_SRC
-      return
-    }
-    if (!Hls.isSupported()) return
-    const hls = new Hls()
-    hls.loadSource(VSL_SRC)
-    hls.attachMedia(player)
-    return () => hls.destroy()
-  }, [])
 
   return (
     <div className="flex flex-col items-center px-6 pt-10 pb-8 text-center">
@@ -51,8 +34,8 @@ export function Offer({ you }: { you: string }) {
         Mira el video a continuación y descubre cómo acceder a tu ritual y comenzar ahora mismo 👇
       </p>
       <video
-        ref={video}
-        className="mb-8 aspect-[3/4] w-full max-w-[400px] rounded-xl bg-black object-cover"
+        className="mb-8 aspect-[3/4] w-full max-w-[400px] rounded-xl bg-black object-contain"
+        src={VSL_SRC}
         controls
         playsInline
         preload="metadata"
