@@ -1,4 +1,4 @@
-# Brasa
+# Llama Eterna
 
 Questionário em espanhol, no formato de funil de tela cheia no celular e de um telefone no desktop. São as mesmas etapas do quiz de reconquista: motivo, tempo, contato, quem terminou, nomes, data, e o que dói agora. No fim sai uma leitura com os dois nomes, o padrão da história e o que fazer nesta semana.
 

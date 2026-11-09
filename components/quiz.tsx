@@ -94,7 +94,7 @@ export function Quiz() {
               onJump={jump}
             />
             <footer className="mt-auto flex flex-col items-center gap-1 border-t border-white/10 bg-black/40 px-6 py-3 text-muted-foreground/70 backdrop-blur-xl">
-              <span className="font-heading text-lg text-foreground/80">Brasa</span>
+              <span className="font-heading text-lg text-foreground/80">Llama Eterna</span>
               <span className="text-xs">© 2026 - Ritual de la Llama Eterna.</span>
             </footer>
           </div>

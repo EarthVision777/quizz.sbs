@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Brasa · cuestionario",
+  title: "Llama Eterna",
   description:
     "Un cuestionario confidencial sobre la ruptura, el contacto y lo que conviene hacer esta semana.",
 };
