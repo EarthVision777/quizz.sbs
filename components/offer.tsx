@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Pause } from "lucide-react"
 import { OfferCard } from "@/components/offer-card"
-import { DEFAULT_CTA, type CheckoutCta } from "@/lib/cta"
+import { DEFAULT_CTA } from "@/lib/cta"
 
 const VSL_SRC = "https://res.cloudinary.com/dyvzcsbc/video/upload/v1794200638/VSL_LHAMA_ETERNA.mp4"
 
@@ -14,22 +14,7 @@ export function Offer({ you }: { you: string }) {
   const [progress, setProgress] = useState(0)
   const [paused, setPaused] = useState(false)
   const [pending, setPending] = useState(false)
-  const [cta, setCta] = useState<CheckoutCta>(DEFAULT_CTA)
-  const delay = useRef(DEFAULT_CTA.delaySeconds)
-  delay.current = cta.delaySeconds
-
-  useEffect(() => {
-    let gone = false
-    fetch("/api/cta")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body: CheckoutCta | null) => {
-        if (!gone && body?.title) setCta(body)
-      })
-      .catch(() => {})
-    return () => {
-      gone = true
-    }
-  }, [])
+  const cta = DEFAULT_CTA
 
   useEffect(() => {
     const video = player.current
@@ -40,7 +25,7 @@ export function Offer({ you }: { you: string }) {
 
   useEffect(() => {
     if (!listening) return
-    const timer = window.setTimeout(() => setCheckoutReady(true), delay.current * 1000)
+    const timer = window.setTimeout(() => setCheckoutReady(true), cta.delaySeconds * 1000)
     return () => window.clearTimeout(timer)
   }, [listening])
 
