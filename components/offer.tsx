@@ -131,7 +131,9 @@ export function Offer({ you }: { you: string }) {
         <div className="emoji-card emoji-card--no-glow w-full" style={{ ["--emoji-rounded" as string]: "16px" }}>
           <div className="emoji-card__content flex flex-col overflow-hidden">
             <div className="px-5 py-6">
-              <h2 className="mb-5 text-center text-xl font-bold text-foreground">Ritual de la Llama Eterna</h2>
+              <h2 className="mb-4 text-center text-xl font-bold text-foreground">Ritual de la Llama Eterna</h2>
+              <p className="text-center text-base text-[hsl(0_0%_62%)] line-through decoration-[hsl(0_0%_78%)] decoration-2">$150</p>
+              <p className="mb-1 text-center text-4xl font-bold tracking-tight text-foreground">$17.85</p>
               <p className="mb-5 text-center text-sm text-[hsl(0_0%_40%)]">Pago único, sin cuotas mensuales</p>
               <div className="mb-5 space-y-2.5 text-left">
                 <p className="text-sm font-semibold text-foreground">Recibirás:</p>
