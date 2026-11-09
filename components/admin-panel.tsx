@@ -7,14 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DEFAULT_CTA, type CheckoutCta } from "@/lib/cta"
 
-type Session = { authenticated: boolean; needsSetup: boolean; usesSecret: boolean }
+type Session = { authenticated: boolean; configured: boolean }
 
 export function AdminPanel() {
   const [session, setSession] = useState<Session | null>(null)
   const [cta, setCta] = useState<CheckoutCta>(DEFAULT_CTA)
   const [password, setPassword] = useState("")
-  const [nextPassword, setNextPassword] = useState("")
-  const [currentPassword, setCurrentPassword] = useState("")
   const [error, setError] = useState("")
   const [saved, setSaved] = useState("")
   const [busy, setBusy] = useState(false)
@@ -33,27 +31,20 @@ export function AdminPanel() {
     }
   }
 
-  async function submit(path: string, payload: unknown) {
+  async function enter() {
     setBusy(true)
     setError("")
-    setSaved("")
-    const response = await fetch(path, {
+    const response = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ password }),
     })
     const body = (await response.json().catch(() => ({}))) as { error?: string }
     setBusy(false)
     if (!response.ok) {
-      setError(body.error || "Não foi possível salvar.")
-      return false
+      setError(body.error || "Não foi possível entrar.")
+      return
     }
-    return true
-  }
-
-  async function enter(path: "/api/admin/setup" | "/api/admin/login") {
-    const ok = await submit(path, { password })
-    if (!ok) return
     setPassword("")
     await refresh()
   }
@@ -104,23 +95,27 @@ export function AdminPanel() {
       <Shell>
         <h1 className="font-heading text-2xl font-bold">Admin do checkout</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {session.needsSetup
-            ? "Crie a senha desta área. Ela fica salva no app e abre a tabela do checkout."
-            : "Entre com a senha para editar a tabela do checkout."}
+          {session.configured
+            ? "Entre com a senha configurada para editar a tabela do checkout."
+            : "A senha do admin ainda não está disponível nesta cópia."}
         </p>
-        <label className="mt-6 block text-sm font-medium" htmlFor="admin-password">Senha</label>
-        <Input
-          id="admin-password"
-          className="mt-2 h-10"
-          type="password"
-          autoComplete={session.needsSetup ? "new-password" : "current-password"}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-        />
-        {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
-        <Button className="mt-4 h-10 w-full" disabled={busy} onClick={() => void enter(session.needsSetup ? "/api/admin/setup" : "/api/admin/login")}>
-          {session.needsSetup ? "Criar senha e entrar" : "Entrar"}
-        </Button>
+        {session.configured ? (
+          <>
+            <label className="mt-6 block text-sm font-medium" htmlFor="admin-password">Senha</label>
+            <Input
+              id="admin-password"
+              className="mt-2 h-10"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
+            <Button className="mt-4 h-10 w-full" disabled={busy} onClick={() => void enter()}>
+              Entrar
+            </Button>
+          </>
+        ) : null}
       </Shell>
     )
   }
@@ -184,7 +179,9 @@ export function AdminPanel() {
           </div>
           <Field label="Texto do botão" value={cta.buttonLabel} onChange={(buttonLabel) => setCta({ ...cta, buttonLabel })} />
           <Field label="Link do checkout" value={cta.checkoutUrl} onChange={(checkoutUrl) => setCta({ ...cta, checkoutUrl })} />
-          <p className="-mt-2 text-xs text-muted-foreground">Vazio: o botão não cobra e mostra a mensagem abaixo.</p>
+          <p className="-mt-2 text-xs text-muted-foreground">
+            Só links https. Vazio: o botão não cobra e mostra a mensagem abaixo.
+          </p>
           <Field label="Mensagem sem link" value={cta.pendingMessage} onChange={(pendingMessage) => setCta({ ...cta, pendingMessage })} />
           <label className="block text-sm font-medium" htmlFor="delay">Segundos depois do clique</label>
           <Input
@@ -203,31 +200,6 @@ export function AdminPanel() {
           <OfferCard cta={cta} onCheckout={() => undefined} />
         </div>
       </div>
-      <section className="mt-10 border-t border-white/10 pt-6">
-        <h2 className="text-lg font-semibold">Senha</h2>
-        {session.usesSecret ? (
-          <p className="mt-2 text-sm text-muted-foreground">
-            A senha ativa é o segredo ADMIN_PASSWORD. Troque esse segredo para mudá-la.
-          </p>
-        ) : (
-          <form
-            className="mt-3 max-w-md space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault()
-              void submit("/api/admin/password", { current: currentPassword, next: nextPassword }).then((ok) => {
-                if (!ok) return
-                setCurrentPassword("")
-                setNextPassword("")
-                setSaved("Senha atualizada.")
-              })
-            }}
-          >
-            <Field label="Senha atual" value={currentPassword} onChange={setCurrentPassword} password />
-            <Field label="Nova senha" value={nextPassword} onChange={setNextPassword} password />
-            <Button type="submit" variant="outline" disabled={busy}>Trocar senha</Button>
-          </form>
-        )}
-      </section>
     </Shell>
   )
 }
@@ -236,12 +208,10 @@ function Field({
   label,
   value,
   onChange,
-  password = false,
 }: {
   label: string
   value: string
   onChange: (value: string) => void
-  password?: boolean
 }) {
   const id = label.toLowerCase().replace(/\s+/g, "-")
   return (
@@ -250,7 +220,7 @@ function Field({
       <Input
         id={id}
         className="mt-2 h-10"
-        type={password ? "password" : "text"}
+        type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />

@@ -6,7 +6,7 @@ As respostas ficam só neste navegador. Não há pagamento, contagem regressiva 
 
 ## Admin do checkout
 
-Em `/admin` a senha abre a tabela do card de pagamento. Dá para editar título, preços, lista, botão, link e os segundos até o card aparecer. Sem link, o botão não cobra. Na primeira visita a senha é criada ali. Se existir o segredo `ADMIN_PASSWORD`, ele vale no lugar dessa senha.
+Em `/admin` a senha configurada no app abre a tabela do card de pagamento. Dá para editar título, preços, lista, botão, link https e os segundos até o card aparecer. Sem link, o botão não cobra. A senha não é criada nessa página.
 
 ## Como usar
 
