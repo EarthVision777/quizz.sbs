@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
-import { ArrowLeft, Volume2, VolumeX } from "lucide-react"
+import { ArrowLeft, Check, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Scene } from "@/components/scene"
@@ -622,7 +622,38 @@ function TextStep({
   )
 }
 
+const PROOFS = [
+  { src: "/proof/maria.webp", name: "María" },
+  { src: "/proof/sofia.webp", name: "Sofía" },
+  { src: "/proof/isabella.webp", name: "Isabella" },
+  { src: "/proof/luana.webp", name: "Luana" },
+  { src: "/proof/laura.webp", name: "Laura" },
+]
+
 function Guide({ onNext }: { onNext: () => void }) {
+  const [ready, setReady] = useState(false)
+  const [slide, setSlide] = useState(0)
+  const touchX = useRef(0)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), 6000)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!ready) return
+    const timer = window.setInterval(() => {
+      setSlide((current) => (current + 1) % PROOFS.length)
+    }, 4000)
+    return () => window.clearInterval(timer)
+  }, [ready])
+
+  function swipe(endX: number) {
+    const delta = endX - touchX.current
+    if (delta > 40) setSlide((current) => (current + PROOFS.length - 1) % PROOFS.length)
+    if (delta < -40) setSlide((current) => (current + 1) % PROOFS.length)
+  }
+
   return (
     <div className="flex flex-1 flex-col items-center px-4 pt-16 pb-16 text-center">
       <img
@@ -639,9 +670,57 @@ function Guide({ onNext }: { onNext: () => void }) {
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         He dedicado mi vida a demostrar que para todo sufrimiento de amor, siempre existe un camino de regreso.
       </p>
-      <div className="mt-8 w-full">
-        <GlowButton onClick={onNext}>Continuar mi ritual</GlowButton>
-      </div>
+      {ready ? (
+        <div className="mt-5 flex items-center gap-2 text-sm font-medium text-[hsl(140_45%_72%)]">
+          <span className="grid size-6 place-items-center rounded-full bg-[hsl(140_50%_40%)] text-white">
+            <Check className="size-3.5" aria-hidden />
+          </span>
+          Listo
+        </div>
+      ) : (
+        <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={6}>
+          <div className="proof-load h-full rounded-full bg-[hsl(140_50%_40%)]" />
+        </div>
+      )}
+      {ready ? (
+        <div className="mt-4 w-full">
+          <div
+            className="overflow-hidden"
+            onTouchStart={(event) => {
+              touchX.current = event.touches[0].clientX
+            }}
+            onTouchEnd={(event) => swipe(event.changedTouches[0].clientX)}
+          >
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${slide * 100}%)` }}
+            >
+              {PROOFS.map((proof) => (
+                <img
+                  key={proof.src}
+                  src={proof.src}
+                  alt={`Conversación con ${proof.name}`}
+                  className="h-[min(68dvh,520px)] w-full shrink-0 rounded-lg object-contain object-top"
+                />
+              ))}
+            </div>
+          </div>
+          <div className="mt-3 flex justify-center gap-1.5">
+            {PROOFS.map((proof, index) => (
+              <button
+                key={proof.src}
+                type="button"
+                aria-label={`Ver conversación de ${proof.name}`}
+                className={`h-2 rounded-full transition-all ${index === slide ? "w-4 bg-primary" : "w-2 bg-white/30"}`}
+                onClick={() => setSlide(index)}
+              />
+            ))}
+          </div>
+          <div className="mt-6 w-full">
+            <GlowButton onClick={onNext}>Continuar mi ritual</GlowButton>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
