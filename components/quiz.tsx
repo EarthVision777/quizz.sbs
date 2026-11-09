@@ -625,9 +625,11 @@ function TextStep({
 function Guide({ onNext }: { onNext: () => void }) {
   return (
     <div className="flex flex-1 flex-col items-center px-4 pt-16 pb-16 text-center">
-      <div className="grid aspect-square w-full max-w-[220px] place-items-center rounded-lg border border-dashed border-white/25 bg-muted/30 px-4 text-center text-xs leading-relaxed text-muted-foreground">
-        Foto pendiente
-      </div>
+      <img
+        src="/rosa.webp"
+        alt="Rosa Moreno"
+        className="aspect-square w-full max-w-[220px] rounded-lg object-cover object-top"
+      />
       <p className="mt-5 text-lg font-bold text-foreground">Mi nombre es Rosa Moreno</p>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         <span className="font-bold text-primary">Desde hace más de 9 años,</span> mi misión ha sido una sola: usar el
