@@ -651,8 +651,9 @@ function Guide({ onNext }: { onNext: () => void }) {
   }, [])
 
   useEffect(() => {
-    const el = frame.current
-    if (!el || !ready) return
+    const node = frame.current
+    if (!node || !ready) return
+    const el: HTMLDivElement = node
     let startX = 0
     let startY = 0
     let tracking = false
