@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Check } from "lucide-react"
+import { Check, Pause } from "lucide-react"
 
 const VSL_SRC = "https://res.cloudinary.com/dyvzcsbc/video/upload/v1794200638/VSL_LHAMA_ETERNA.mp4"
 
@@ -18,6 +18,7 @@ export function Offer({ you }: { you: string }) {
   const [listening, setListening] = useState(false)
   const [checkoutReady, setCheckoutReady] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [paused, setPaused] = useState(false)
   const [pending, setPending] = useState(false)
 
   useEffect(() => {
@@ -44,8 +45,13 @@ export function Offer({ you }: { you: string }) {
   function togglePlayback() {
     const video = player.current
     if (!video) return
-    if (video.paused) void video.play().catch(() => {})
-    else video.pause()
+    if (video.paused) {
+      void video.play().catch(() => {})
+      setPaused(false)
+    } else {
+      video.pause()
+      setPaused(true)
+    }
   }
 
   function tick() {
@@ -82,8 +88,17 @@ export function Offer({ you }: { you: string }) {
             playsInline
             preload="metadata"
             onTimeUpdate={tick}
+            onPlay={() => setPaused(false)}
+            onPause={() => setPaused(true)}
             onClick={listening ? togglePlayback : undefined}
           />
+          {listening && paused ? (
+            <div className="pointer-events-none absolute inset-0 grid place-items-center" aria-hidden>
+              <span className="grid size-16 place-items-center rounded-full bg-black/55 text-white">
+                <Pause className="size-8 fill-white" />
+              </span>
+            </div>
+          ) : null}
           {listening ? null : (
             <button
               type="button"
