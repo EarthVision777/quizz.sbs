@@ -381,7 +381,7 @@ function Landing({ onStart }: { onStart: () => void }) {
       <img
         src="/ritual.webp"
         alt="Vela roja, manzana y pétalos de rosa"
-        className="h-[min(40dvh,324px)] w-full object-cover object-[center_62%]"
+        className="h-[min(48dvh,400px)] w-full object-cover object-[center_55%]"
       />
       <div className="flex flex-1 flex-col items-center px-4 py-5 text-center">
         <h1 className="font-heading text-2xl leading-snug font-bold">
