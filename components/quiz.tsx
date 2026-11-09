@@ -372,7 +372,11 @@ function Step({
 function Landing({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-1 flex-col">
-      <Scene id="landing" className="aspect-square" />
+      <img
+        src="/ritual.webp"
+        alt="Vela roja, manzana y pétalos de rosa"
+        className="w-full h-auto"
+      />
       <div className="flex flex-1 flex-col items-center px-4 py-10 text-center">
         <h1 className="font-heading text-2xl leading-snug font-bold">
           Haz este <span className="text-primary">cuestionario</span> y verás con claridad qué está pasando con la persona que amas
