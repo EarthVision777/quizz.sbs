@@ -1,7 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import Hls from "hls.js"
 import { Check } from "lucide-react"
+
+const VSL_SRC =
+  "https://cdn.converteai.net/31957ec3-9250-4adb-93eb-bb2b4086c66f/69bc5bdaacddada823a9149b/main.m3u8"
 
 const INCLUDED = [
   "Tu ritual 100% personalizado",
@@ -13,6 +17,21 @@ const INCLUDED = [
 
 export function Offer({ you }: { you: string }) {
   const [pending, setPending] = useState(false)
+  const video = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const player = video.current
+    if (!player) return
+    if (player.canPlayType("application/vnd.apple.mpegurl")) {
+      player.src = VSL_SRC
+      return
+    }
+    if (!Hls.isSupported()) return
+    const hls = new Hls()
+    hls.loadSource(VSL_SRC)
+    hls.attachMedia(player)
+    return () => hls.destroy()
+  }, [])
 
   return (
     <div className="flex flex-col items-center px-6 pt-10 pb-8 text-center">
@@ -28,6 +47,16 @@ export function Offer({ you }: { you: string }) {
           ❌ Sin karma negativo ni ninguna consecuencia mala para ti ni para él.
         </p>
       </div>
+      <p className="mb-4 text-base font-medium leading-relaxed text-foreground">
+        Mira el video a continuación y descubre cómo acceder a tu ritual y comenzar ahora mismo 👇
+      </p>
+      <video
+        ref={video}
+        className="mb-8 aspect-[3/4] w-full max-w-[400px] rounded-xl bg-black object-cover"
+        controls
+        playsInline
+        preload="metadata"
+      />
       <div className="emoji-card emoji-card--no-glow w-full" style={{ ["--emoji-rounded" as string]: "16px" }}>
         <div className="emoji-card__content flex flex-col overflow-hidden">
           <div className="px-5 py-6">
