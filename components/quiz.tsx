@@ -633,8 +633,12 @@ const PROOFS = [
 function Guide({ onNext }: { onNext: () => void }) {
   const [percent, setPercent] = useState(0)
   const [slide, setSlide] = useState(0)
-  const touchX = useRef(0)
+  const [drag, setDrag] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const frame = useRef<HTMLDivElement>(null)
+  const slideRef = useRef(0)
   const ready = percent >= 100
+  slideRef.current = slide
 
   useEffect(() => {
     const started = performance.now()
@@ -646,11 +650,105 @@ function Guide({ onNext }: { onNext: () => void }) {
     return () => window.clearInterval(timer)
   }, [])
 
-  function swipe(startX: number, endX: number) {
-    const delta = endX - startX
-    if (delta > 40) setSlide((current) => (current + PROOFS.length - 1) % PROOFS.length)
-    if (delta < -40) setSlide((current) => (current + 1) % PROOFS.length)
-  }
+  useEffect(() => {
+    const el = frame.current
+    if (!el || !ready) return
+    let startX = 0
+    let startY = 0
+    let tracking = false
+    let horizontal = false
+    let moved = 0
+
+    function claim(dx: number, dy: number) {
+      if (!horizontal) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return false
+        if (Math.abs(dy) >= Math.abs(dx)) {
+          tracking = false
+          return false
+        }
+        horizontal = true
+        setDragging(true)
+      }
+      return true
+    }
+
+    function offset(dx: number) {
+      const current = slideRef.current
+      const atStart = current === 0 && dx > 0
+      const atEnd = current === PROOFS.length - 1 && dx < 0
+      return atStart || atEnd ? dx * 0.3 : dx
+    }
+
+    function finish() {
+      if (!tracking) return
+      tracking = false
+      if (horizontal) {
+        const width = el.clientWidth || 1
+        const current = slideRef.current
+        if (moved <= -width * 0.18 && current < PROOFS.length - 1) setSlide(current + 1)
+        else if (moved >= width * 0.18 && current > 0) setSlide(current - 1)
+      }
+      horizontal = false
+      moved = 0
+      setDrag(0)
+      setDragging(false)
+    }
+
+    function onTouchStart(event: TouchEvent) {
+      if (event.touches.length !== 1) return
+      startX = event.touches[0].clientX
+      startY = event.touches[0].clientY
+      tracking = true
+      horizontal = false
+      moved = 0
+    }
+
+    function onTouchMove(event: TouchEvent) {
+      if (!tracking) return
+      const dx = event.touches[0].clientX - startX
+      const dy = event.touches[0].clientY - startY
+      if (!claim(dx, dy)) return
+      event.preventDefault()
+      moved = dx
+      setDrag(offset(dx))
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      if (event.pointerType === "touch") return
+      startX = event.clientX
+      startY = event.clientY
+      tracking = true
+      horizontal = false
+      moved = 0
+      const move = (pointer: PointerEvent) => {
+        const dx = pointer.clientX - startX
+        const dy = pointer.clientY - startY
+        if (!claim(dx, dy)) return
+        moved = dx
+        setDrag(offset(dx))
+      }
+      const up = () => {
+        window.removeEventListener("pointermove", move)
+        window.removeEventListener("pointerup", up)
+        finish()
+      }
+      window.addEventListener("pointermove", move)
+      window.addEventListener("pointerup", up)
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true })
+    el.addEventListener("touchmove", onTouchMove, { passive: false })
+    el.addEventListener("touchend", finish)
+    el.addEventListener("touchcancel", finish)
+    el.addEventListener("pointerdown", onPointerDown)
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart)
+      el.removeEventListener("touchmove", onTouchMove)
+      el.removeEventListener("touchend", finish)
+      el.removeEventListener("touchcancel", finish)
+      el.removeEventListener("pointerdown", onPointerDown)
+    }
+  }, [ready])
 
   return (
     <div className="flex flex-1 flex-col items-center px-4 pt-16 pb-16 text-center">
@@ -691,34 +789,18 @@ function Guide({ onNext }: { onNext: () => void }) {
       )}
       {ready ? (
         <div className="mt-4 w-full">
-          <div
-            data-proofs
-            className="overflow-hidden"
-            style={{ touchAction: "pan-y" }}
-            onTouchStart={(event) => {
-              touchX.current = event.touches[0].clientX
-            }}
-            onTouchEnd={(event) => swipe(touchX.current, event.changedTouches[0].clientX)}
-            onPointerDown={(event) => {
-              if (event.pointerType === "touch") return
-              const start = event.clientX
-              const end = (pointer: PointerEvent) => {
-                window.removeEventListener("pointerup", end)
-                swipe(start, pointer.clientX)
-              }
-              window.addEventListener("pointerup", end)
-            }}
-          >
+          <div ref={frame} data-proofs className="overflow-hidden" style={{ touchAction: "pan-y" }}>
             <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${slide * 100}%)` }}
+              className={dragging ? "flex" : "flex transition-transform duration-300 ease-out"}
+              style={{ transform: `translateX(calc(-${slide * 100}% + ${drag}px))` }}
             >
               {PROOFS.map((proof) => (
                 <img
                   key={proof.src}
                   src={proof.src}
                   alt={`Conversación con ${proof.name}`}
-                  className="h-[min(68dvh,520px)] w-full shrink-0 rounded-lg object-contain object-top"
+                  draggable={false}
+                  className="h-[min(68dvh,520px)] w-full shrink-0 rounded-lg object-contain object-top select-none"
                 />
               ))}
             </div>
