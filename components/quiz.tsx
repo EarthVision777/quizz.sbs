@@ -93,11 +93,11 @@ export function Quiz() {
               onPick={pick}
               onJump={jump}
             />
+            <footer className="mt-auto flex flex-col items-center gap-1 border-t border-white/10 bg-black/40 px-6 py-3 text-muted-foreground/70 backdrop-blur-xl">
+              <span className="font-heading text-lg text-foreground/80">Brasa</span>
+              <span className="text-xs">© Brasa · Lectura confidencial</span>
+            </footer>
           </div>
-          <footer className="mt-auto flex flex-col items-center gap-2 border-t border-white/10 bg-black/40 px-6 py-4 text-muted-foreground/70 backdrop-blur-xl">
-            <span className="font-heading text-lg text-foreground/80">Brasa</span>
-            <span className="text-xs">© Brasa · Lectura confidencial</span>
-          </footer>
         </div>
       </div>
     </div>
@@ -375,19 +375,19 @@ function Landing({ onStart }: { onStart: () => void }) {
       <img
         src="/ritual.webp"
         alt="Vela roja, manzana y pétalos de rosa"
-        className="w-full h-auto"
+        className="h-[min(40dvh,324px)] w-full object-cover object-[center_62%]"
       />
-      <div className="flex flex-1 flex-col items-center px-4 py-10 text-center">
+      <div className="flex flex-1 flex-col items-center px-4 py-5 text-center">
         <h1 className="font-heading text-2xl leading-snug font-bold">
           Haz este <span className="text-primary">cuestionario</span> y verás con claridad qué está pasando con la persona que amas
         </h1>
-        <p className="mt-3 max-w-md text-base text-muted-foreground">
+        <p className="mt-2 max-w-md text-base text-muted-foreground">
           Sin juegos, sin presión y sin consecuencias para ti ni para él
         </p>
-        <div className="mt-4 w-full">
+        <div className="mt-3 w-full">
           <GlowButton onClick={onStart}>Empieza ahora</GlowButton>
         </div>
-        <p className="mt-4 text-xs">🔒 100% confidencial</p>
+        <p className="mt-3 text-xs">🔒 100% confidencial</p>
         <p className="mt-1 text-xs">✅ Lectura personalizada para tu situación</p>
       </div>
     </div>
