@@ -4,6 +4,10 @@ Questionário em espanhol, no formato de funil de tela cheia no celular e de um 
 
 As respostas ficam só neste navegador. Não há pagamento, contagem regressiva nem promessa de que alguém volte.
 
+## Admin do checkout
+
+Em `/admin` a senha abre a tabela do card de pagamento. Dá para editar título, preços, lista, botão, link e os segundos até o card aparecer. Sem link, o botão não cobra. Na primeira visita a senha é criada ali. Se existir o segredo `ADMIN_PASSWORD`, ele vale no lugar dessa senha.
+
 ## Como usar
 
 Toque em **Empieza ahora** e responda. O botão da esquerda volta um passo. O da direita liga e desliga o som do toque. Se a data ou o nome estiverem incompletos, o quiz avisa e não avança. **Empezar de nuevo** apaga o rascunho.

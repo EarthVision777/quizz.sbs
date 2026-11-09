@@ -1,17 +1,11 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Check, Pause } from "lucide-react"
+import { Pause } from "lucide-react"
+import { OfferCard } from "@/components/offer-card"
+import { DEFAULT_CTA, type CheckoutCta } from "@/lib/cta"
 
 const VSL_SRC = "https://res.cloudinary.com/dyvzcsbc/video/upload/v1794200638/VSL_LHAMA_ETERNA.mp4"
-
-const INCLUDED = [
-  "Tu ritual 100% personalizado",
-  "3 regalos especiales",
-  "1 regalo secreto",
-  "Garantía incondicional de 30 días",
-  "Acceso de por vida",
-]
 
 export function Offer({ you }: { you: string }) {
   const player = useRef<HTMLVideoElement>(null)
@@ -20,6 +14,22 @@ export function Offer({ you }: { you: string }) {
   const [progress, setProgress] = useState(0)
   const [paused, setPaused] = useState(false)
   const [pending, setPending] = useState(false)
+  const [cta, setCta] = useState<CheckoutCta>(DEFAULT_CTA)
+  const delay = useRef(DEFAULT_CTA.delaySeconds)
+  delay.current = cta.delaySeconds
+
+  useEffect(() => {
+    let gone = false
+    fetch("/api/cta")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body: CheckoutCta | null) => {
+        if (!gone && body?.title) setCta(body)
+      })
+      .catch(() => {})
+    return () => {
+      gone = true
+    }
+  }, [])
 
   useEffect(() => {
     const video = player.current
@@ -30,7 +40,7 @@ export function Offer({ you }: { you: string }) {
 
   useEffect(() => {
     if (!listening) return
-    const timer = window.setTimeout(() => setCheckoutReady(true), 10000)
+    const timer = window.setTimeout(() => setCheckoutReady(true), delay.current * 1000)
     return () => window.clearTimeout(timer)
   }, [listening])
 
@@ -128,35 +138,17 @@ export function Offer({ you }: { you: string }) {
         </div>
       </div>
       {checkoutReady ? (
-        <div className="emoji-card emoji-card--no-glow w-full" style={{ ["--emoji-rounded" as string]: "16px" }}>
-          <div className="emoji-card__content flex flex-col overflow-hidden">
-            <div className="px-5 py-6">
-              <h2 className="mb-4 text-center text-xl font-bold text-foreground">Ritual de la Llama Eterna</h2>
-              <p className="text-center text-base text-[hsl(0_0%_62%)] line-through decoration-[hsl(0_0%_78%)] decoration-2">$150</p>
-              <p className="mb-1 text-center text-4xl font-bold tracking-tight text-foreground">$17.85</p>
-              <p className="mb-5 text-center text-sm text-[hsl(0_0%_40%)]">Pago único, sin cuotas mensuales</p>
-              <div className="mb-5 space-y-2.5 text-left">
-                <p className="text-sm font-semibold text-foreground">Recibirás:</p>
-                {INCLUDED.map((item) => (
-                  <div key={item} className="flex items-start gap-2.5">
-                    <Check className="mt-0.5 size-4 shrink-0 text-[#00DA37]" aria-hidden />
-                    <span className="text-sm text-muted-foreground">{item}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="glow-button-wrapper">
-                <button type="button" className="glow-button" onClick={() => setPending(true)}>
-                  <span className="glow-button__text">Continuar al pago</span>
-                </button>
-              </div>
-              {pending ? (
-                <p role="status" className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  El enlace de pago está pendiente. No se realizó ningún cobro.
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
+        <OfferCard
+          cta={cta}
+          notice={pending ? cta.pendingMessage : undefined}
+          onCheckout={() => {
+            if (cta.checkoutUrl) {
+              window.location.assign(cta.checkoutUrl)
+              return
+            }
+            setPending(true)
+          }}
+        />
       ) : null}
     </div>
   )
