@@ -41,6 +41,13 @@ export function Offer({ you }: { you: string }) {
     setListening(true)
   }
 
+  function togglePlayback() {
+    const video = player.current
+    if (!video) return
+    if (video.paused) void video.play().catch(() => {})
+    else video.pause()
+  }
+
   function tick() {
     const video = player.current
     if (!video || !video.duration) return
@@ -75,6 +82,7 @@ export function Offer({ you }: { you: string }) {
             playsInline
             preload="metadata"
             onTimeUpdate={tick}
+            onClick={listening ? togglePlayback : undefined}
           />
           {listening ? null : (
             <button
