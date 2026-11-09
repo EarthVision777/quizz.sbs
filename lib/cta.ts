@@ -13,7 +13,7 @@ export type CheckoutCta = {
 
 export const DEFAULT_CTA: CheckoutCta = {
   title: "Ritual de la Llama Eterna",
-  comparePrice: "$150",
+  comparePrice: "$650",
   price: "$17.85",
   note: "Pago único, sin cuotas mensuales",
   itemsLabel: "Recibirás:",
