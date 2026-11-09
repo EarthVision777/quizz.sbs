@@ -261,14 +261,6 @@
   0%, 100% { top: 0; }
   50% { top: 100%; }
 }
-.proof-load {
-  width: 0;
-  animation: proof-load 6s linear forwards;
-}
-@keyframes proof-load {
-  to { width: 100%; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-slide-up,
   .emoji-card::before,

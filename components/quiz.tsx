@@ -631,25 +631,23 @@ const PROOFS = [
 ]
 
 function Guide({ onNext }: { onNext: () => void }) {
-  const [ready, setReady] = useState(false)
+  const [percent, setPercent] = useState(0)
   const [slide, setSlide] = useState(0)
   const touchX = useRef(0)
+  const ready = percent >= 100
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setReady(true), 6000)
-    return () => window.clearTimeout(timer)
+    const started = performance.now()
+    const timer = window.setInterval(() => {
+      const next = Math.min(100, Math.round(((performance.now() - started) / 6000) * 100))
+      setPercent(next)
+      if (next >= 100) window.clearInterval(timer)
+    }, 50)
+    return () => window.clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    if (!ready) return
-    const timer = window.setInterval(() => {
-      setSlide((current) => (current + 1) % PROOFS.length)
-    }, 4000)
-    return () => window.clearInterval(timer)
-  }, [ready])
-
-  function swipe(endX: number) {
-    const delta = endX - touchX.current
+  function swipe(startX: number, endX: number) {
+    const delta = endX - startX
     if (delta > 40) setSlide((current) => (current + PROOFS.length - 1) % PROOFS.length)
     if (delta < -40) setSlide((current) => (current + 1) % PROOFS.length)
   }
@@ -678,18 +676,38 @@ function Guide({ onNext }: { onNext: () => void }) {
           Listo
         </div>
       ) : (
-        <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="progressbar" aria-valuemin={0} aria-valuemax={6}>
-          <div className="proof-load h-full rounded-full bg-[hsl(140_50%_40%)]" />
+        <div className="mt-5 w-full">
+          <p className="font-heading text-4xl tabular-nums">{percent}%</p>
+          <div
+            className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10"
+            role="progressbar"
+            aria-valuenow={percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div className="h-full rounded-full bg-[hsl(140_50%_40%)]" style={{ width: `${percent}%` }} />
+          </div>
         </div>
       )}
       {ready ? (
         <div className="mt-4 w-full">
           <div
+            data-proofs
             className="overflow-hidden"
+            style={{ touchAction: "pan-y" }}
             onTouchStart={(event) => {
               touchX.current = event.touches[0].clientX
             }}
-            onTouchEnd={(event) => swipe(event.changedTouches[0].clientX)}
+            onTouchEnd={(event) => swipe(touchX.current, event.changedTouches[0].clientX)}
+            onPointerDown={(event) => {
+              if (event.pointerType === "touch") return
+              const start = event.clientX
+              const end = (pointer: PointerEvent) => {
+                window.removeEventListener("pointerup", end)
+                swipe(start, pointer.clientX)
+              }
+              window.addEventListener("pointerup", end)
+            }}
           >
             <div
               className="flex transition-transform duration-500 ease-out"
