@@ -30,7 +30,7 @@ export function Offer({ you }: { you: string }) {
 
   useEffect(() => {
     if (!listening) return
-    const timer = window.setTimeout(() => setCheckoutReady(true), 37000)
+    const timer = window.setTimeout(() => setCheckoutReady(true), 10000)
     return () => window.clearTimeout(timer)
   }, [listening])
 
