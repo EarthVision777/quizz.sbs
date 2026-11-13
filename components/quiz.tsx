@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { ArrowLeft, Check, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Scene } from "@/components/scene"
+import { PHOTOS, Scene } from "@/components/scene"
 import { Offer } from "@/components/offer"
 import { dateError, displayName, nameError } from "@/lib/reading"
 import {
@@ -47,6 +47,13 @@ export function Quiz() {
     if (key === "who") delete next.after
     jump(index + 1, next)
   }
+
+  useEffect(() => {
+    for (const src of Object.values(PHOTOS)) {
+      const img = new Image()
+      img.src = src
+    }
+  }, [])
 
   const showTools = index < 21
   const showBack = index > 0 && index < 21
