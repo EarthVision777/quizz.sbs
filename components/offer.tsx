@@ -4,11 +4,15 @@ import { useEffect, useRef, useState } from "react"
 import { Pause } from "lucide-react"
 import { OfferCard } from "@/components/offer-card"
 import { DEFAULT_CTA } from "@/lib/cta"
+import { displayName } from "@/lib/reading"
+import type { Answers } from "@/lib/storage"
 
 const VSL_SRC =
   "https://res.cloudinary.com/dyvzcsbc/video/upload/q_auto:best,br_900k,vc_h264:high,w_540,c_limit/v1794200638/VSL_LHAMA_ETERNA.mp4"
 
-export function Offer({ you }: { you: string }) {
+export function Offer({ you, answers }: { you: string; answers: Answers }) {
+  const love = displayName(answers.love, "esa persona")
+  const contact = answers.contact
   const player = useRef<HTMLVideoElement>(null)
   const [listening, setListening] = useState(false)
   const [checkoutReady, setCheckoutReady] = useState(false)
@@ -61,18 +65,22 @@ export function Offer({ you }: { you: string }) {
       <h1 className="mb-6 text-2xl font-bold">
         <span className="text-red-400">{you}</span>
         <br />
-        <span className="text-foreground">tu ritual está listo!</span>
+        <span className="text-foreground">esto sigue con {love}</span>
       </h1>
-      <div className="mb-8 w-full space-y-3">
-        <p className="text-base text-muted-foreground">🔥 No importa si te bloqueó.</p>
-        <p className="text-base text-muted-foreground">🔥 No importa si está con otra.</p>
-        <p className="text-base text-muted-foreground">
-          ❌ Sin karma negativo ni ninguna consecuencia mala para ti ni para él.
+      <div className="mb-8 w-full space-y-3 text-left">
+        <p className="text-base leading-relaxed text-muted-foreground">
+          El video explica el Ritual de la Llama Eterna: qué incluye y cómo se paga. Es una guía simbólica. No obliga a {love} a volver.
+        </p>
+        {contact ? (
+          <p className="text-base leading-relaxed text-muted-foreground">
+            Tú contaste que el contacto hoy es este: {contact.charAt(0).toLocaleLowerCase("es")}
+            {contact.slice(1)}.
+          </p>
+        ) : null}
+        <p className="text-base font-medium leading-relaxed text-foreground">
+          Activa el sonido. El botón de pago aparece unos segundos después.
         </p>
       </div>
-      <p className="mb-4 text-base font-medium leading-relaxed text-foreground">
-        Mira el video a continuación y descubre cómo acceder a tu ritual y comenzar ahora mismo 👇
-      </p>
       <div className="mb-8 w-full max-w-[400px]">
         <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-black">
           <video

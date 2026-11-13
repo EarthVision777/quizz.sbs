@@ -50,12 +50,7 @@ type Profile = "brasa" | "ceniza" | "umbral" | "sombra" | "marea"
 function profileOf(answers: Answers): Profile {
   const reason = answers.reason ?? ""
   const pain = answers.pain ?? ""
-  const wish = answers.wish ?? ""
-  if (
-    reason.includes("otra persona") ||
-    pain.includes("otra persona") ||
-    wish.includes("aleje")
-  ) {
+  if (reason.includes("otra persona") || pain.includes("otra persona")) {
     return "sombra"
   }
   if (answers.who === "Yo") return "umbral"
@@ -70,7 +65,7 @@ function profileOf(answers: Answers): Profile {
     answers.contact === "Aún hablamos con frecuencia" ||
     answers.contact === "A veces hablamos, pero de forma fría"
   if (warm && answers.beginning?.startsWith("Era intenso")) return "brasa"
-  if (answers.today === "Sí, ¡inmediatamente!" && warm) return "brasa"
+  if (answers.today === "Sí, la tendría ahora" && warm) return "brasa"
   return "marea"
 }
 

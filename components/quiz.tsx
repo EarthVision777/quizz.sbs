@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
-import { ArrowLeft, Check, Volume2, VolumeX } from "lucide-react"
+import { ArrowLeft, Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PHOTOS, Scene } from "@/components/scene"
@@ -16,17 +16,17 @@ import {
 } from "@/lib/storage"
 
 const HURT = [
-  { label: "Me sentí mal desde el inicio", scene: "regret" },
+  { label: "Me dolió desde el primer día", scene: "regret" },
   { label: "Al principio intenté aceptarlo, pero pronto empecé a extrañarlo", scene: "soon" },
-  { label: "Tardé en sentirlo, pero hoy la siento un gran vacío", scene: "late" },
-  { label: "No le di mucha importancia.", scene: "shrug" },
+  { label: "Tardé en sentirlo, y hoy siento un vacío grande", scene: "late" },
+  { label: "No le di mucha importancia", scene: "shrug" },
 ]
 
 const REGRET = [
-  { label: "Me arrepentí inmediatamente", scene: "regret" },
+  { label: "Me arrepentí enseguida", scene: "regret" },
   { label: "Intenté seguir, pero pronto me arrepentí", scene: "soon" },
   { label: "Tardé en sentirlo, pero hoy me arrepiento", scene: "late" },
-  { label: "No le di mucha importancia.", scene: "shrug" },
+  { label: "No le di mucha importancia", scene: "shrug" },
 ]
 
 export function Quiz() {
@@ -64,7 +64,14 @@ export function Quiz() {
       <div className="flex h-dvh w-full flex-col overflow-hidden md:h-[844px] md:max-h-[90vh] md:w-[390px] md:rounded-3xl md:border md:border-white/10 md:shadow-[0_0_60px_rgba(0,0,0,0.5)]">
         <div ref={scroller} className="quiz-bg relative flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto">
           {showTools ? (
-            <div className="absolute inset-x-0 top-0 z-20 h-2 bg-white/10">
+            <div
+              className="absolute inset-x-0 top-0 z-20 h-2 bg-white/10"
+              role="progressbar"
+              aria-label="Progreso del cuestionario"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress)}
+            >
               <div className="h-full bg-primary transition-[width] duration-500" style={{ width: `${progress}%` }} />
             </div>
           ) : null}
@@ -113,10 +120,8 @@ export function Quiz() {
 }
 
 function barValue(index: number) {
-  const total = 20
-  const current = index - 1
-  const ratio = Math.max(0, current / total)
-  return (0.2 + Math.sqrt(ratio) * 0.8) * 100
+  if (index <= 0) return 0
+  return Math.min(100, (index / 20) * 100)
 }
 
 function Step({
@@ -138,12 +143,12 @@ function Step({
     case 1:
       return (
         <ImageStep
-          title="Cuál fue el motivo de la ruptura entre ustedes?"
+          title="¿Cuál de estas situaciones describe mejor por qué se separaron?"
           options={[
-            { label: "Discutimos mucho", scene: "argue" },
+            { label: "Discutíamos mucho", scene: "argue" },
             { label: "La relación se fue enfriando", scene: "fade" },
-            { label: "Me dejó por otra persona", scene: "other" },
-            { label: "Celos", scene: "jealousy" },
+            { label: "Se fue con otra persona", scene: "other" },
+            { label: "Los celos nos ganaron", scene: "jealousy" },
           ]}
           allowOther
           onPick={(value) => onPick("reason", value)}
@@ -153,7 +158,7 @@ function Step({
       return (
         <EmojiStep
           scene="clock"
-          title="Cuánto tiempo llevas intentando recuperar a tu ex?"
+          title="¿Hace cuánto intentas acercarte de nuevo?"
           options={[
             ["Hace algunos días", "🤦"],
             ["Hace algunas semanas", "😩"],
@@ -166,7 +171,7 @@ function Step({
     case 3:
       return (
         <ImageStep
-          title="Aún mantienes contacto con tu amor?"
+          title="¿Cómo está el contacto entre ustedes hoy?"
           options={[
             { label: "No, me bloqueó de todas partes", scene: "blocked" },
             { label: "Perdimos el contacto", scene: "lost" },
@@ -181,11 +186,11 @@ function Step({
       return (
         <EmojiStep
           scene="couple"
-          title="Cómo era el sentimiento al inicio de su relación?"
+          title="¿Cómo se sentía la relación al principio?"
           options={[
             ["Era intenso y siempre tuvimos mucha conexión", "🔥"],
             ["Inestable, a veces cercano, a veces frío", "❌"],
-            ["Él nunca fue de demostrar sus sentimientos", "🧊"],
+            ["Él casi no mostraba lo que sentía", "🧊"],
           ]}
           onPick={(value) => onPick("beginning", value)}
         />
@@ -194,7 +199,7 @@ function Step({
       return (
         <EmojiStep
           scene="door"
-          title="Quién tomó la decisión de terminar la relación?"
+          title="¿Quién decidió terminar?"
           options={[
             ["Yo", "👩"],
             ["Él", "👨"],
@@ -206,7 +211,7 @@ function Step({
     case 6:
       return (
         <ImageStep
-          title="Cómo te sentiste después de la ruptura?"
+          title="¿Qué sentiste después de la ruptura?"
           options={answers.who === "Él" ? HURT : REGRET}
           onPick={(value) => onPick("after", value)}
         />
@@ -215,11 +220,11 @@ function Step({
       return (
         <EmojiStep
           scene="candle"
-          title="Ya intentaste algo para recuperar a tu amor?"
+          title="¿Ya habías buscado una simpatía o un ritual para esta historia?"
           options={[
-            ["Sí, intenté algunos rituales que encontré en internet", "🧙"],
-            ["Sí, ya pagué por algunos trabajos, pero nada funcionó", "🕯️"],
-            ["Todavía no, esta es la primera vez que estoy buscando algo así", "💔"],
+            ["Sí, probé rituales que vi en internet", "🧙"],
+            ["Sí, pagué otros trabajos y no sentí un cambio", "🕯️"],
+            ["Todavía no. Es la primera vez que busco algo así", "💔"],
           ]}
           onPick={(value) => onPick("tried", value)}
         />
@@ -228,8 +233,8 @@ function Step({
       return (
         <TextStep
           scene="spirit"
-          title="¿Cuál es tu nombre?"
-          placeholder="Escribe tu nombre..."
+          title="¿Cómo te llamas?"
+          placeholder="Tu nombre"
           initial={answers.you ?? ""}
           validate={nameError}
           onSubmit={(value) => onPick("you", value)}
@@ -239,8 +244,8 @@ function Step({
       return (
         <TextStep
           scene="beloved"
-          title="¿Cómo se llama tu amor?"
-          placeholder="Escribe el nombre de tu amor..."
+          title="¿Cómo se llama la persona que amas?"
+          placeholder="Su nombre"
           initial={answers.love ?? ""}
           validate={nameError}
           onSubmit={(value) => onPick("love", value)}
@@ -262,21 +267,18 @@ function Step({
     case 12:
       return (
         <EmojiStep
-          title="Qué es lo que más te rompe el corazón en esta lucha por tenerlo de vuelta?"
+          title="¿Qué es lo que más te duele de esta historia?"
           note={
             <>
-              {you || "Tú"}, responde algunas preguntas más para preparar tu ritual exclusivo.{" "}
-              <span className="font-semibold text-foreground">
-                Si no actúas ahora, él puede seguir adelante para siempre...
-              </span>
+              {you || "Tú"}, faltan unas preguntas para preparar el video de tu ritual.
             </>
           }
           options={[
-            ["Él me ignora como si nunca me hubiera amado", "😢"],
-            ["Él está con otra persona y eso me destruye por dentro", "💔"],
-            ["Lo intento, pero parece que nada funciona", "💥"],
-            ["El miedo al rechazo me paraliza", "😩"],
-            ["Todas las opciones anteriores", "🤦‍♀️"],
+            ["Me ignora, como si lo nuestro no hubiera existido", "😢"],
+            ["Está con otra persona y eso me duele", "💔"],
+            ["Intento acercarme y siento que nada cambia", "💥"],
+            ["El miedo a que me rechace me detiene", "😩"],
+            ["Un poco de todo eso", "🤦‍♀️"],
           ]}
           onPick={(value) => onPick("pain", value)}
         />
@@ -285,12 +287,12 @@ function Step({
       return (
         <EmojiStep
           scene="pair"
-          title="Por qué crees que aún no has logrado recuperar a tu ex?"
+          title="¿Qué crees que está impidiendo un acercamiento?"
           options={[
-            ["Falta de comunicación", "❌"],
-            ["Heridas del pasado", "💔"],
-            ["Otras personas interfiriendo", "👫"],
-            ["No sé el motivo exacto", "😢"],
+            ["Nos falta hablar con calma", "❌"],
+            ["Quedaron heridas del pasado", "💔"],
+            ["Hay otras personas en medio", "👫"],
+            ["No tengo claro el motivo", "😢"],
           ]}
           onPick={(value) => onPick("why", value)}
         />
@@ -298,7 +300,7 @@ function Step({
     case 14:
       return (
         <ImageStep
-          title={`${you || "Tú"}, cómo te sientes cuando piensas en el fin de la relación?`}
+          title={`${you || "Tú"}, ¿qué sientes cuando recuerdas el final?`}
           options={[
             { label: "Tristeza profunda", scene: "sad" },
             { label: "Ansiedad", scene: "anxious" },
@@ -312,12 +314,12 @@ function Step({
       return (
         <EmojiStep
           scene="replay"
-          title="Sueles revivir mentalmente momentos específicos de la relación?"
+          title="¿Vuelves a revivir momentos de la relación en tu cabeza?"
           options={[
             ["Sí, todos los días", "💭"],
             ["Sí, a veces", "🤔"],
             ["Rara vez", "🤔"],
-            ["Nunca me ha pasado", "❌"],
+            ["Casi nunca", "❌"],
           ]}
           onPick={(value) => onPick("replay", value)}
         />
@@ -326,7 +328,7 @@ function Step({
       return (
         <EmojiStep
           scene="phone"
-          title="Tienes el hábito de revisar las redes sociales de tu ex?"
+          title="¿Revisas las redes de tu ex?"
           options={[
             ["Sí, todos los días", "📱"],
             ["Sí, a veces", "🤔"],
@@ -339,12 +341,12 @@ function Step({
     case 17:
       return (
         <ImageStep
-          title="Sientes que esta situación está afectando otras áreas de tu vida?"
+          title="¿Esta situación está tocando otras partes de tu vida?"
           options={[
-            { label: "Sí, mi salud emocional", scene: "health" },
-            { label: "Sí, mi desempeño profesional", scene: "work" },
-            { label: "Sí, estoy teniendo noches mal dormidas", scene: "sleep" },
-            { label: "Todas las opciones anteriores", scene: "all" },
+            { label: "Sí, mi ánimo", scene: "health" },
+            { label: "Sí, mi trabajo", scene: "work" },
+            { label: "Sí, duermo mal", scene: "sleep" },
+            { label: "Sí, en varias de esas áreas", scene: "all" },
           ]}
           onPick={(value) => onPick("areas", value)}
         />
@@ -353,12 +355,12 @@ function Step({
       return (
         <EmojiStep
           scene="wish"
-          title="Qué resultados te gustaría alcanzar con este ritual?"
+          title="¿Qué intención quieres poner en este ritual?"
           options={[
-            ["Que él vuelva completamente enamorado", ""],
-            ["Que me pida perdón y reconsidere la separación", ""],
-            ["Que se aleje de cualquier otra mujer", ""],
-            ["Todas las opciones anteriores", ""],
+            ["Volver a sentir cercanía con él", ""],
+            ["Poder hablar de lo que pasó", ""],
+            ["Soltar el miedo a que esté con otra persona", ""],
+            ["Las tres cosas", ""],
           ]}
           onPick={(value) => onPick("wish", value)}
         />
@@ -367,11 +369,11 @@ function Step({
       return (
         <EmojiStep
           scene="today"
-          title="Si pudieras hacer que tu ex vuelva HOY, ¿lo harías?"
+          title="Si hoy pudieras tener una conversación honesta con él, ¿la tendrías?"
           options={[
-            ["Sí, ¡inmediatamente!", "😍"],
-            ["Quiero asegurarme de que funcione, sin importar cuánto tiempo tome", "👫"],
-            ["No me importa tanto eso", "🥱"],
+            ["Sí, la tendría ahora", "😍"],
+            ["Sí, pero quiero ir con calma", "👫"],
+            ["Ahora no me siento lista", "🥱"],
           ]}
           onPick={(value) => onPick("today", value)}
         />
@@ -379,7 +381,7 @@ function Step({
     case 20:
       return <Finale you={you || "Tú"} onDone={() => onJump(21)} />
     default:
-      return <Offer you={you || "Querida"} />
+      return <Offer you={you || "Querida"} answers={answers} />
   }
 }
 
@@ -393,16 +395,15 @@ function Landing({ onStart }: { onStart: () => void }) {
       />
       <div className="flex shrink-0 flex-col items-center px-4 pt-4 pb-3 text-center">
         <h1 className="font-heading text-2xl leading-snug font-bold">
-          Haz este <span className="text-primary">cuestionario</span> y verás con claridad qué está pasando con la persona que amas
+          Cuéntame qué estás viviendo con la <span className="text-primary">persona que amas</span>
         </h1>
         <p className="mt-2 max-w-md text-base text-muted-foreground">
-          Sin juegos, sin presión y sin consecuencias para ti ni para él
+          Unas preguntas cortas para preparar el Ritual de la Llama Eterna con lo que tú respondas.
         </p>
         <div className="mt-3 w-full">
           <GlowButton onClick={onStart}>Empieza ahora</GlowButton>
         </div>
-        <p className="mt-3 text-xs">🔒 100% confidencial</p>
-        <p className="mt-1 text-xs">✅ Lectura personalizada para tu situación</p>
+        <p className="mt-3 text-xs">Tus respuestas se quedan en este dispositivo.</p>
       </div>
     </div>
   )
@@ -410,7 +411,7 @@ function Landing({ onStart }: { onStart: () => void }) {
 
 function Title({ children }: { children: string }) {
   return (
-    <h2 className="mb-8 text-center font-heading text-xl leading-snug font-semibold tracking-tight text-white">
+    <h2 className="mb-5 text-center font-heading text-xl leading-snug font-semibold tracking-tight text-white">
       {children}
     </h2>
   )
@@ -447,13 +448,13 @@ function ImageStep({
           <button
             key={option.label}
             type="button"
-            className="overflow-hidden rounded-xl text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="overflow-hidden rounded-xl text-left transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             onClick={() => onPick(option.label)}
           >
             <span className="relative block aspect-square">
               <Scene id={option.scene} />
               <span className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
-              <span className="absolute inset-x-0 bottom-0 bg-black/70 px-2 py-2 text-center text-sm leading-tight font-light backdrop-blur-sm">
+              <span className="absolute inset-x-0 bottom-0 bg-black/80 px-2 py-2 text-center text-sm leading-tight font-medium text-white">
                 {option.label}
               </span>
             </span>
@@ -466,7 +467,7 @@ function ImageStep({
           <div className="flex gap-2">
             <Input
               value={other}
-              placeholder="Escriba otro motivo..."
+              placeholder="Otro motivo"
               aria-label="Otro motivo"
               aria-invalid={error ? true : undefined}
               className="h-14 flex-1 px-3 text-center text-base"
@@ -639,28 +640,16 @@ const PROOFS = [
 ]
 
 function Guide({ onNext }: { onNext: () => void }) {
-  const [percent, setPercent] = useState(0)
   const [slide, setSlide] = useState(0)
   const [drag, setDrag] = useState(0)
   const [dragging, setDragging] = useState(false)
   const frame = useRef<HTMLDivElement>(null)
   const slideRef = useRef(0)
-  const ready = percent >= 100
   slideRef.current = slide
 
   useEffect(() => {
-    const started = performance.now()
-    const timer = window.setInterval(() => {
-      const next = Math.min(100, Math.round(((performance.now() - started) / 6000) * 100))
-      setPercent(next)
-      if (next >= 100) window.clearInterval(timer)
-    }, 50)
-    return () => window.clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
     const node = frame.current
-    if (!node || !ready) return
+    if (!node) return
     const el: HTMLDivElement = node
     let startX = 0
     let startY = 0
@@ -757,7 +746,7 @@ function Guide({ onNext }: { onNext: () => void }) {
       el.removeEventListener("touchcancel", finish)
       el.removeEventListener("pointerdown", onPointerDown)
     }
-  }, [ready])
+  }, [])
 
   return (
     <div className="flex flex-1 flex-col items-center px-4 pt-16 pb-16 text-center">
@@ -766,38 +755,13 @@ function Guide({ onNext }: { onNext: () => void }) {
         alt="Rosa Moreno"
         className="aspect-square w-full max-w-[220px] rounded-lg object-cover object-top"
       />
-      <p className="mt-5 text-lg font-bold text-foreground">Mi nombre es Rosa Moreno</p>
+      <p className="mt-5 text-lg font-bold text-foreground">Rosa Moreno</p>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        <span className="font-bold text-primary">Desde hace más de 9 años,</span> mi misión ha sido una sola: usar el
-        conocimiento que heredé de mi familia <strong className="text-foreground">para ayudar a mujeres</strong> como tú
-        que tienen el corazón roto.
+        Desde hace más de 9 años acompaño a mujeres que están dolidas por una historia de amor. El ritual que vas a ver es
+        simbólico: ordena tu intención. No obliga a la otra persona a volver.
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        He dedicado mi vida a demostrar que para todo sufrimiento de amor, siempre existe un camino de regreso.
-      </p>
-      {ready ? (
-        <div className="mt-5 flex items-center gap-2 text-sm font-medium text-[hsl(140_45%_72%)]">
-          <span className="grid size-6 place-items-center rounded-full bg-[hsl(140_50%_40%)] text-white">
-            <Check className="size-3.5" aria-hidden />
-          </span>
-          Listo
-        </div>
-      ) : (
-        <div className="mt-5 w-full">
-          <p className="font-heading text-4xl tabular-nums">{percent}%</p>
-          <div
-            className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10"
-            role="progressbar"
-            aria-valuenow={percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div className="h-full rounded-full bg-[hsl(140_50%_40%)]" style={{ width: `${percent}%` }} />
-          </div>
-        </div>
-      )}
-      {ready ? (
-        <div className="mt-4 w-full">
+      <div className="mt-4 w-full">
+        <p className="mb-3 text-sm text-muted-foreground">Desliza para ver mensajes que Rosa ha compartido.</p>
           <div ref={frame} data-proofs className="overflow-hidden" style={{ touchAction: "pan-y" }}>
             <div
               className={dragging ? "flex" : "flex transition-transform duration-300 ease-out"}
@@ -828,8 +792,7 @@ function Guide({ onNext }: { onNext: () => void }) {
           <div className="mt-6 w-full">
             <GlowButton onClick={onNext}>Continuar mi ritual</GlowButton>
           </div>
-        </div>
-      ) : null}
+      </div>
     </div>
   )
 }
@@ -848,10 +811,10 @@ function Finale({ you, onDone }: { you: string; onDone: () => void }) {
     <div className="flex flex-1 flex-col">
       <Scene id="finale" className="aspect-square" />
       <div className="flex flex-1 flex-col items-center px-4 py-6 pb-16 text-center">
-        <h2 className="font-heading text-xl font-bold tracking-tight uppercase">
+        <h2 className="font-heading text-xl font-bold tracking-tight">
           <span className="text-red-300">{you}</span>
           <br />
-          <span>No salgas de esta página</span>
+          <span>Tu video está por abrir</span>
         </h2>
         <div className="relative mt-6 grid size-28 place-items-center text-primary">
           <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90" aria-hidden>
@@ -869,7 +832,7 @@ function Finale({ you, onDone }: { you: string; onDone: () => void }) {
           <span className="text-3xl">❤️</span>
         </div>
         <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-          Estamos finalizando los últimos detalles de tu ritual personalizado…
+          El círculo marca unos segundos reales. Al terminar, el video empieza solo.
         </p>
       </div>
     </div>

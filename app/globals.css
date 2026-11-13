@@ -211,6 +211,9 @@
   width: 1.4rem;
   height: 1.4rem;
 }
+.emoji-card:active {
+  transform: scale(0.98);
+}
 .glow-button-wrapper:active {
   transform: scale(0.98);
 }

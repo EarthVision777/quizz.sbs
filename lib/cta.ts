@@ -15,7 +15,7 @@ export const DEFAULT_CTA: CheckoutCta = {
   title: "Ritual de la Llama Eterna",
   comparePrice: "$650",
   price: "$17.85",
-  note: "Pago único, sin cuotas mensuales",
+  note: "Pago único de $17.85. La página siguiente es el cobro.",
   itemsLabel: "Recibirás:",
   items: [
     "Tu ritual 100% personalizado",
@@ -24,7 +24,7 @@ export const DEFAULT_CTA: CheckoutCta = {
     "Garantía incondicional de 30 días",
     "Acceso de por vida",
   ],
-  buttonLabel: "Continuar al pago",
+  buttonLabel: "Ir al pago",
   checkoutUrl: "https://go.centerpag.com/PPU38CQHNTS",
   pendingMessage: "El enlace de pago está pendiente. No se realizó ningún cobro.",
   delaySeconds: 10,
