@@ -25,7 +25,7 @@ export const DEFAULT_CTA: CheckoutCta = {
     "Acceso de por vida",
   ],
   buttonLabel: "Continuar al pago",
-  checkoutUrl: "",
+  checkoutUrl: "https://go.centerpag.com/PPU38CQHNTS",
   pendingMessage: "El enlace de pago está pendiente. No se realizó ningún cobro.",
   delaySeconds: 10,
 }
