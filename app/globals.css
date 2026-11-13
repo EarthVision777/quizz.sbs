@@ -257,6 +257,14 @@
 .scan-line {
   animation: scan 4s ease-in-out infinite;
 }
+.finale-ring {
+  stroke-dasharray: 94.2;
+  stroke-dashoffset: 94.2;
+  animation: finale-fill 4.2s linear forwards;
+}
+@keyframes finale-fill {
+  to { stroke-dashoffset: 0; }
+}
 .vsl-stroke {
   color: #fff;
   font-family: "Arial Black", Arial, sans-serif;

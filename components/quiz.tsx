@@ -846,16 +846,24 @@ function Finale({ you, onDone }: { you: string; onDone: () => void }) {
           <br />
           <span>No salgas de esta página</span>
         </h2>
-        <div className="relative mt-6 grid size-28 place-items-center">
-          <span className="absolute inset-0 animate-spin rounded-full border-8 border-primary/30 border-t-primary" />
+        <div className="relative mt-6 grid size-28 place-items-center text-primary">
+          <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90" aria-hidden>
+            <circle cx="18" cy="18" r="15" fill="none" className="stroke-primary/25" strokeWidth="3" />
+            <circle
+              cx="18"
+              cy="18"
+              r="15"
+              fill="none"
+              className="finale-ring stroke-primary"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
           <span className="text-3xl">❤️</span>
         </div>
         <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-          Estamos finalizando los últimos detalles de tu ritual personalizado… Puedes seguir ahora: no hace falta esperar el círculo.
+          Estamos finalizando los últimos detalles de tu ritual personalizado…
         </p>
-        <div className="mt-6 w-full">
-          <GlowButton onClick={onDone}>Continuar</GlowButton>
-        </div>
       </div>
     </div>
   )
