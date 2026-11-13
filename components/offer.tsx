@@ -5,7 +5,7 @@ import { Pause } from "lucide-react"
 import { OfferCard } from "@/components/offer-card"
 import { DEFAULT_CTA } from "@/lib/cta"
 
-const VSL_SRC = "/vsl.mp4"
+const VSL_SRC = "https://res.cloudinary.com/dyvzcsbc/video/upload/v1794200638/VSL_LHAMA_ETERNA.mp4"
 
 export function Offer({ you }: { you: string }) {
   const player = useRef<HTMLVideoElement>(null)
